@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>퇴근길 시황 일지</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#160526;--bg-deep:#100418;--panel:#1d0b33;--panel-2:#241041;
+  --line:#3a1b5e;--sidebar-a:#3c0a66;--sidebar-b:#1a0530;
+  --cyan:#2ee6d6;--yellow:#ffd23f;--magenta:#ff3d8b;--violet:#9b5cff;--green:#3ddc84;--orange:#ff8a3d;
+  --text:#e9defa;--dim:#9a86bd;
+  --grad-hot:linear-gradient(90deg,#ff3d8b,#ff8a3d,#ffd23f);
+  --grad-cool:linear-gradient(90deg,#2ee6d6,#4d8bff,#9b5cff);
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:14px;display:flex;min-height:100vh}
+.eng{font-family:'Montserrat',sans-serif;letter-spacing:.18em;text-transform:uppercase}
+
+/* ── 사이드바 ── */
+aside{width:220px;flex-shrink:0;background:linear-gradient(180deg,var(--sidebar-a),var(--sidebar-b) 70%,var(--bg-deep));
+  padding:22px 0;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.logo{color:var(--cyan);font-family:'Montserrat';font-weight:700;font-size:19px;letter-spacing:.06em;
+  padding:4px 22px 22px;text-shadow:0 0 14px rgba(46,230,214,.55)}
+.logo small{display:block;color:var(--dim);font-family:'Noto Sans KR';font-weight:400;font-size:11px;letter-spacing:.3em;margin-top:4px}
+.nav-btn{display:flex;align-items:center;gap:12px;padding:12px 22px;color:var(--dim);cursor:pointer;border:0;background:none;
+  font-family:'Montserrat','Noto Sans KR',sans-serif;font-size:11.5px;letter-spacing:.22em;width:100%;text-align:left;transition:.15s}
+.nav-btn svg{width:15px;height:15px;flex-shrink:0}
+.nav-btn:hover{color:var(--text);background:rgba(255,255,255,.03)}
+.nav-btn.active{color:var(--cyan);background:rgba(46,230,214,.07);box-shadow:inset 3px 0 0 var(--cyan)}
+.side-label{padding:26px 22px 8px;font-size:10.5px;letter-spacing:.28em;color:var(--text);font-family:'Montserrat';font-weight:700}
+
+/* ── 메인 ── */
+main{flex:1;min-width:0;display:flex;flex-direction:column}
+header{background:var(--bg-deep);padding:14px 28px;display:flex;align-items:center;gap:18px;
+  border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.search{flex:1;max-width:420px;background:#2a0f47;border:1px solid var(--line);border-radius:999px;
+  padding:9px 18px;color:var(--text);font-family:inherit;font-size:13px;outline:none}
+.search::placeholder{color:var(--dim);letter-spacing:.15em}
+.hdr-date{margin-left:auto;color:var(--dim);font-size:12.5px;letter-spacing:.1em}
+.crumb{padding:18px 28px 0;font-size:11px;color:var(--dim)}
+.crumb b{color:var(--yellow);letter-spacing:.2em;font-family:'Montserrat'}
+.content{padding:20px 28px 60px;max-width:1220px;width:100%}
+
+/* ── 카드 ── */
+.card{background:var(--panel);border:1px solid rgba(255,255,255,.04);border-radius:var(--radius);padding:20px 22px}
+.card h3{color:var(--yellow);font-family:'Montserrat','Noto Sans KR';font-size:12.5px;letter-spacing:.24em;font-weight:600;margin-bottom:6px}
+.card h3 .step-no{color:var(--cyan);margin-right:8px}
+.card .hint{color:var(--dim);font-size:12px;margin-bottom:14px;line-height:1.6}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:980px){.g3,.g2,.g4{grid-template-columns:repeat(2,1fr)}aside{display:none}}
+@media(max-width:620px){.g3,.g2,.g4{grid-template-columns:1fr}}
+
+/* ── 대시보드: 지표 그룹 ── */
+.group{margin-top:22px}
+.group-head{display:flex;align-items:baseline;gap:12px;margin-bottom:10px}
+.group-head .no{font-family:'Montserrat';font-weight:700;color:var(--cyan);font-size:15px;letter-spacing:.1em}
+.group-head .t{color:var(--yellow);font-family:'Montserrat','Noto Sans KR';font-size:12px;letter-spacing:.22em;font-weight:600}
+.group-head .q{color:var(--dim);font-size:11.5px;margin-left:auto;text-align:right}
+.tiles{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.tile{background:var(--panel);border:1px solid rgba(255,255,255,.04);border-radius:12px;padding:14px 16px;min-height:104px;
+  display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden}
+.tile .k{color:var(--dim);font-size:10.5px;letter-spacing:.18em;font-family:'Montserrat','Noto Sans KR'}
+.tile .v{font-family:'Montserrat';font-weight:700;font-size:21px}
+.tile .v small{font-size:12px;font-weight:500;color:var(--dim);letter-spacing:0}
+.tile .c{font-size:12px;font-weight:700}
+.tile .spark{margin-top:auto;height:30px}
+.up{color:var(--green)}.dn{color:var(--magenta)}.fl{color:var(--dim)}
+.badge{display:inline-block;font-size:11px;padding:4px 11px;border-radius:999px;letter-spacing:.06em;margin-top:2px;width:fit-content}
+.b-good{background:rgba(61,220,132,.14);color:var(--green)}
+.b-warn{background:rgba(255,210,63,.13);color:var(--yellow)}
+.b-bad{background:rgba(255,61,139,.14);color:var(--magenta)}
+.b-dim{background:rgba(154,134,189,.12);color:var(--dim)}
+
+/* ── 도넛 ── */
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;padding:4px 0}
+.donut{position:relative}
+.donut .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Montserrat';font-weight:700;font-size:22px}
+.donut-cap{color:var(--cyan);font-family:'Montserrat';font-size:10.5px;letter-spacing:.26em}
+.donut-sub{color:var(--dim);font-size:11.5px;text-align:center;line-height:1.6}
+
+/* ── 판정 배너 ── */
+.verdict{border-radius:var(--radius);padding:22px 24px;margin-top:16px;background:linear-gradient(135deg,#2a0f47,#1d0b33);
+  border:1px solid var(--line);position:relative;overflow:hidden}
+.verdict::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--grad-cool)}
+.verdict.v-bad::before{background:var(--grad-hot)}
+.verdict .v-title{font-size:19px;font-weight:700;margin-bottom:4px}
+.verdict .v-tag{font-family:'Montserrat';font-size:10.5px;letter-spacing:.3em;color:var(--dim);margin-bottom:10px}
+.verdict ul{margin:10px 0 0 2px;list-style:none}
+.verdict li{padding:5px 0 5px 18px;position:relative;font-size:13px;line-height:1.65}
+.verdict li::before{content:"";position:absolute;left:0;top:12px;width:8px;height:2px;background:var(--cyan)}
+.verdict li.warn::before{background:var(--magenta)}
+.strategy{margin-top:14px;background:#160829;border-left:3px solid var(--yellow);border-radius:0 8px 8px 0;padding:14px 16px}
+.strategy .st{color:var(--yellow);font-size:11px;letter-spacing:.22em;font-family:'Montserrat';margin-bottom:8px}
+.strategy p{font-size:13px;line-height:1.8}
+.checklist{margin-top:12px}
+.checklist .st{color:var(--cyan);font-size:11px;letter-spacing:.22em;font-family:'Montserrat';margin-bottom:6px}
+.checklist li{padding:4px 0 4px 18px;position:relative;font-size:12.5px;color:var(--dim);list-style:none}
+.checklist li::before{content:"";position:absolute;left:2px;top:11px;width:6px;height:6px;border:1.5px solid var(--cyan);border-radius:2px}
+
+/* ── 폼 ── */
+label.f{display:block;color:var(--dim);font-size:11.5px;margin:12px 0 6px;letter-spacing:.08em}
+input[type=text],input[type=number],input[type=date],textarea,select{
+  width:100%;background:#160829;border:1px solid var(--line);border-radius:8px;
+  padding:9px 12px;color:var(--text);font-family:inherit;font-size:13.5px;outline:none;transition:.15s}
+input:focus,textarea:focus,select:focus{border-color:var(--cyan);box-shadow:0 0 0 2px rgba(46,230,214,.15)}
+textarea{resize:vertical;min-height:66px;line-height:1.6}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.seg button{background:#160829;border:1px solid var(--line);color:var(--dim);border-radius:999px;
+  padding:7px 14px;cursor:pointer;font-family:inherit;font-size:12.5px;transition:.15s}
+.seg button:hover{color:var(--text)}
+.seg button.on-good{background:rgba(61,220,132,.14);border-color:var(--green);color:var(--green)}
+.seg button.on-warn{background:rgba(255,210,63,.13);border-color:var(--yellow);color:var(--yellow)}
+.seg button.on-bad{background:rgba(255,61,139,.14);border-color:var(--magenta);color:var(--magenta)}
+.seg button.on-cool{background:rgba(46,230,214,.12);border-color:var(--cyan);color:var(--cyan)}
+
+/* ── 버튼 ── */
+.btn{border:0;border-radius:999px;padding:11px 24px;cursor:pointer;
+  font-family:'Montserrat','Noto Sans KR';font-weight:600;font-size:12.5px;letter-spacing:.14em;transition:.15s}
+.btn-cyan{background:var(--cyan);color:#08221f}
+.btn-cyan:hover{box-shadow:0 0 18px rgba(46,230,214,.5)}
+.btn-ghost{background:transparent;border:1px solid var(--line);color:var(--dim)}
+.btn-ghost:hover{color:var(--text);border-color:var(--dim)}
+.btn-hot{background:var(--grad-hot);color:#2a0505}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+/* ── 일지 목록 ── */
+.entry-card{cursor:pointer;transition:.15s;display:flex;gap:16px;align-items:center}
+.entry-card:hover{background:var(--panel-2);transform:translateY(-1px)}
+.mini-donut{width:56px;height:56px;flex-shrink:0;position:relative}
+.mini-donut .val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Montserrat';font-weight:700;font-size:12px}
+.entry-meta{flex:1;min-width:0}
+.entry-meta .d{font-family:'Montserrat';letter-spacing:.12em;color:var(--cyan);font-size:12px}
+.entry-meta .v{font-weight:700;font-size:15px;margin:3px 0}
+.entry-meta .s{color:var(--dim);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{font-size:10.5px;padding:4px 10px;border-radius:999px;letter-spacing:.1em;flex-shrink:0}
+.chip.c-good{background:rgba(61,220,132,.14);color:var(--green)}
+.chip.c-warn{background:rgba(255,210,63,.13);color:var(--yellow)}
+.chip.c-bad{background:rgba(255,61,139,.14);color:var(--magenta)}
+
+/* ── 스크린샷 / 상세 / 가이드 ── */
+.shots{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.shots img{height:90px;border-radius:8px;border:1px solid var(--line);cursor:pointer}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:22px;text-align:center;color:var(--dim);
+  cursor:pointer;transition:.15s;font-size:12.5px;line-height:1.7}
+.drop:hover,.drop.over{border-color:var(--cyan);color:var(--cyan)}
+.detail-sec{border-left:2px solid var(--line);padding:2px 0 2px 16px;margin:14px 0}
+.detail-sec .t{color:var(--cyan);font-size:11px;letter-spacing:.22em;font-family:'Montserrat';margin-bottom:6px}
+.detail-sec .b{font-size:13.5px;line-height:1.8;white-space:pre-wrap}
+.kv{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.kv span{background:#160829;border:1px solid var(--line);border-radius:6px;padding:4px 10px;font-size:12px;color:var(--dim)}
+.kv span b{color:var(--text);font-weight:500}
+.guide p{line-height:1.85;font-size:13.5px;margin:8px 0}
+.guide .rule{background:#160829;border-left:3px solid var(--cyan);border-radius:0 8px 8px 0;padding:12px 16px;margin:10px 0;line-height:1.8;font-size:13px}
+.guide .rule.hot{border-left-color:var(--magenta)}
+.guide .rule b{color:var(--yellow)}
+.empty{color:var(--dim);text-align:center;padding:50px 0;line-height:2;letter-spacing:.05em}
+.view{display:none}
+.view.active{display:block}
+.mt{margin-top:16px}
+#lightbox{position:fixed;inset:0;background:rgba(10,2,20,.9);display:none;align-items:center;justify-content:center;z-index:99;cursor:zoom-out}
+#lightbox img{max-width:92vw;max-height:92vh;border-radius:10px}
+::-webkit-scrollbar{width:9px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:99px}
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="logo">Market Log<small>퇴근길 시황 일지</small></div>
+  <button class="nav-btn active" data-view="dash">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>DASHBOARD</button>
+  <button class="nav-btn" data-view="write">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>오늘 기록</button>
+  <button class="nav-btn" data-view="list">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>일지 목록</button>
+  <button class="nav-btn" data-view="guide">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg>분석 가이드</button>
+  <div class="side-label">DATA</div>
+  <button class="nav-btn" id="btnExport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>백업 (JSON)</button>
+  <button class="nav-btn" id="btnImport"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M17 8l-5-5-5 5"/><path d="M12 3v12"/></svg>복원</button>
+  <input type="file" id="importFile" accept=".json" style="display:none">
+</aside>
+
+<main>
+  <header>
+    <input class="search eng" id="searchBox" placeholder="search" type="text">
+    <span class="hdr-date eng" id="hdrDate"></span>
+  </header>
+  <div class="crumb"><b>MARKET LOG</b> / <span id="crumbCur">HOME</span></div>
+
+  <div class="content">
+
+    <!-- ═══════ 대시보드 ═══════ -->
+    <section class="view active" id="view-dash">
+      <div class="grid g4" id="dashTop"></div>
+      <div id="dashGroups"></div>
+      <div class="card mt">
+        <h3>RECENT LOGS</h3>
+        <div id="dashRecent"></div>
+      </div>
+    </section>
+
+    <!-- ═══════ 오늘 기록 ═══════ -->
+    <section class="view" id="view-write">
+      <div class="card">
+        <h3>기록 날짜</h3>
+        <input type="date" id="fDate" style="max-width:220px">
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">01</span>미국 매크로 — 시장의 안전판</h3>
+        <div class="hint">모든 판단의 전제. 금리(10Y)와 VIX가 안정적인지, FOMC · CPI 같은 이벤트가 대기 중인지부터 확인합니다.</div>
+        <div class="grid g4">
+          <div><label class="f">미 10Y 금리 (%)</label><input type="number" step="0.001" id="fUs10y" placeholder="4.35"></div>
+          <div><label class="f">미 2Y 금리 (%)</label><input type="number" step="0.001" id="fUs2y" placeholder="3.90"></div>
+          <div><label class="f">달러인덱스</label><input type="number" step="0.01" id="fDxy" placeholder="104.2"></div>
+          <div><label class="f">VIX</label><input type="number" step="0.01" id="fVix" placeholder="13.5"></div>
+        </div>
+        <label class="f">대기 중 이벤트</label>
+        <div class="seg" data-key="event">
+          <button data-val="none" data-tone="good">없음</button>
+          <button data-val="fomc" data-tone="warn">FOMC</button>
+          <button data-val="cpi" data-tone="warn">CPI · 물가</button>
+          <button data-val="jobs" data-tone="warn">고용</button>
+          <button data-val="earnings" data-tone="warn">빅테크 실적</button>
+          <button data-val="etc" data-tone="warn">기타</button>
+        </div>
+        <label class="f">매크로 종합</label>
+        <div class="seg" data-key="macro">
+          <button data-val="calm" data-tone="good">안정 (금리 · VIX 안정)</button>
+          <button data-val="watch" data-tone="warn">경계 (이벤트 대기 · 금리 반등)</button>
+          <button data-val="risk" data-tone="bad">위험 (금리 급등 · VIX 상승)</button>
+        </div>
+        <label class="f">매크로 메모</label>
+        <textarea id="mMacro" placeholder="예: 10Y 4.3%대 안착, FOMC 무난히 통과. 달러 약세 지속…"></textarea>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">02</span>미국 지수 · 주도주 — 글로벌 추세</h3>
+        <div class="hint">S&amp;P500 · 나스닥 · SOX(필라델피아 반도체)의 추세와, 빅테크 · AI 주도주에 sell sign이 나오는지 봅니다. 미국 주도주의 이상은 국내 반도체의 선행 신호입니다.</div>
+        <div class="grid g3">
+          <div><label class="f">S&amp;P500 등락률 (%)</label><input type="number" step="0.01" id="fSpx" placeholder="0.4"></div>
+          <div><label class="f">나스닥 등락률 (%)</label><input type="number" step="0.01" id="fNdx" placeholder="0.7"></div>
+          <div><label class="f">SOX 등락률 (%)</label><input type="number" step="0.01" id="fSox" placeholder="1.2"></div>
+        </div>
+        <label class="f">미국 주도주 (빅테크 · AI) 상태</label>
+        <div class="seg" data-key="usLeaders">
+          <button data-val="strong" data-tone="good">강세 · 신고가</button>
+          <button data-val="hold" data-tone="good">추세 유지</button>
+          <button data-val="mixed" data-tone="warn">혼조 · 일부 이탈</button>
+          <button data-val="weak" data-tone="bad">약세 · sell sign</button>
+        </div>
+        <label class="f">미국 메모</label>
+        <textarea id="mUs" placeholder="예: 나스닥 신고가, SOX 강세. NVDA 견조하나 AVGO는 조정…"></textarea>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">03</span>아시아 증시 — 동조화 확인</h3>
+        <div class="hint">닛케이 · 대만 가권과의 coupling. 우리만 강하거나 약하면 국내 고유 요인을 의심합니다.</div>
+        <div class="grid g2">
+          <div><label class="f">닛케이 등락률 (%)</label><input type="number" step="0.01" id="fNikkei" placeholder="1.1"></div>
+          <div><label class="f">대만 가권 등락률 (%)</label><input type="number" step="0.01" id="fTaiex" placeholder="0.8"></div>
+        </div>
+        <label class="f">동조화</label>
+        <div class="seg" data-key="asia">
+          <button data-val="up" data-tone="good">동반 강세</button>
+          <button data-val="mixed" data-tone="warn">혼조 · 디커플링</button>
+          <button data-val="down" data-tone="bad">동반 약세</button>
+        </div>
+        <label class="f">아시아 메모</label>
+        <textarea id="mAsia" placeholder="예: 아시아 전반 위험선호. 대만 반도체 강세 동반…"></textarea>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">04</span>국내 지수 — 추세 신호</h3>
+        <div class="hint">KOSPI · KOSDAQ 등락, 거래대금, 그리고 sell sign(추세 이탈) 여부. 지수에 sell sign이 없어야 보유의 전제가 성립합니다.</div>
+        <div class="grid g4">
+          <div><label class="f">KOSPI 종가</label><input type="number" step="0.01" id="fKospi" placeholder="9100"></div>
+          <div><label class="f">KOSPI 등락률 (%)</label><input type="number" step="0.01" id="fKospiChg" placeholder="1.2"></div>
+          <div><label class="f">KOSDAQ 등락률 (%)</label><input type="number" step="0.01" id="fKosdaqChg" placeholder="0.5"></div>
+          <div><label class="f">거래대금 (조원)</label><input type="number" step="0.1" id="fVolume" placeholder="18.5"></div>
+        </div>
+        <label class="f">지수 추세 신호</label>
+        <div class="seg" data-key="sellSign">
+          <button data-val="none" data-tone="good">이상 없음 (추세 유지)</button>
+          <button data-val="watch" data-tone="warn">경계 (20일선 침투 등)</button>
+          <button data-val="fired" data-tone="bad">Sell sign 발생</button>
+        </div>
+        <label class="f">지수 메모</label>
+        <textarea id="mIndex" placeholder="예: 코스피 3거래일 연속 상승, 거래대금은 감소. 장중 낙폭 축소하며 마감…"></textarea>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">05</span>국내 주도주 — 시장의 질</h3>
+        <div class="hint">삼성전자 · SK하이닉스가 고가를 경신하는지, 상승이 주도주군(AI H/W · 전력기기 · 후공정)으로 확산되는지. 시장의 질은 지수가 아니라 주도주가 말해줍니다.</div>
+        <div class="grid g2">
+          <div><label class="f">삼성전자 등락률 (%)</label><input type="number" step="0.01" id="fSec" placeholder="1.5"></div>
+          <div><label class="f">SK하이닉스 등락률 (%)</label><input type="number" step="0.01" id="fHynix" placeholder="2.3"></div>
+        </div>
+        <label class="f">주도주 상태</label>
+        <div class="seg" data-key="leaders">
+          <button data-val="high" data-tone="good">신고가 경신 (강세)</button>
+          <button data-val="up" data-tone="good">상승 (고가는 아직)</button>
+          <button data-val="flat" data-tone="warn">보합 · 쉬어감</button>
+          <button data-val="weak" data-tone="bad">약세 · 추세 훼손</button>
+        </div>
+        <label class="f">주도주 상승 확산</label>
+        <div class="seg" data-key="spread">
+          <button data-val="wide" data-tone="good">확산 중 (여러 종목 동반)</button>
+          <button data-val="narrow" data-tone="warn">소수 압축 (제한적)</button>
+          <button data-val="none" data-tone="bad">확산 없음</button>
+        </div>
+        <label class="f">주도주 메모</label>
+        <textarea id="mLeaders" placeholder="예: SK하이닉스 신고가, 삼성전자 보합. 전력기기 · 후공정 일부만 동반…"></textarea>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">06</span>시장 내부 — 순환매 · 부진 종목군</h3>
+        <div class="hint">주도주가 쉴 때 utility 등 비주도주로 순환매가 도는지, 부진 종목군 추세가 오히려 약해지는지. 순환매 과열은 질 낮은 상승의 방증입니다.</div>
+        <label class="f">순환매 (utility 등 비주도주 급등)</label>
+        <div class="seg" data-key="rotation">
+          <button data-val="none" data-tone="good">없음 · 잠잠</button>
+          <button data-val="some" data-tone="warn">일부 순환매</button>
+          <button data-val="hot" data-tone="bad">순환매 과열</button>
+        </div>
+        <label class="f">부진 종목군 추세</label>
+        <div class="seg" data-key="laggards">
+          <button data-val="hold" data-tone="good">추세 유지</button>
+          <button data-val="soft" data-tone="warn">약세 (오히려 밀림)</button>
+          <button data-val="break" data-tone="bad">추세 이탈 · 급락</button>
+        </div>
+        <label class="f">시장 내부 메모</label>
+        <textarea id="mInternal" placeholder="예: utility 급등 지속, KOSDAQ 상대 약세. 시장 내부 온도차 확대…"></textarea>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">07</span>차트 스크린샷</h3>
+        <div class="hint">KOSPI · 주도주 · 미국 지수 차트 캡처를 붙여두세요. 스크린샷을 Claude에 올리면 수치를 읽어 판정을 도와줍니다.</div>
+        <div class="drop" id="dropZone">클릭하거나 이미지를 끌어다 놓으세요<br>여러 장 첨부 가능</div>
+        <input type="file" id="shotInput" accept="image/*" multiple style="display:none">
+        <div class="shots" id="shotPreview"></div>
+      </div>
+
+      <div class="card mt">
+        <h3><span class="step-no">08</span>내 결론 메모</h3>
+        <textarea id="mConclusion" placeholder="오늘 시장을 한 줄로 정리하면… / 내일 확인할 것…" style="min-height:90px"></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-cyan" id="btnJudge">자동 판정 실행</button>
+        <button class="btn btn-hot" id="btnSave">일지 저장</button>
+        <button class="btn btn-ghost" id="btnReset">초기화</button>
+      </div>
+      <div id="judgeResult"></div>
+    </section>
+
+    <!-- ═══════ 일지 목록 ═══════ -->
+    <section class="view" id="view-list">
+      <div id="entryList" class="grid" style="grid-template-columns:1fr"></div>
+    </section>
+
+    <!-- ═══════ 상세 ═══════ -->
+    <section class="view" id="view-detail">
+      <div class="btn-row" style="margin:0 0 16px">
+        <button class="btn btn-ghost" id="btnBack">← 목록</button>
+        <button class="btn btn-cyan" id="btnMd">Markdown 복사</button>
+        <button class="btn btn-ghost" id="btnMdDl">MD 다운로드</button>
+        <button class="btn btn-ghost" id="btnEdit">이 날짜 수정</button>
+        <button class="btn btn-ghost" id="btnDel" style="color:var(--magenta);border-color:var(--magenta)">삭제</button>
+      </div>
+      <div id="detailBody"></div>
+    </section>
+
+    <!-- ═══════ 분석 가이드 ═══════ -->
+    <section class="view" id="view-guide">
+      <div class="card guide">
+        <h3>분석 순서 — 대시보드와 기록이 이 순서를 따릅니다</h3>
+        <div class="rule"><b>① 미국 매크로</b> — 미 10Y · 2Y 금리, 달러인덱스, VIX, FOMC/CPI/고용 이벤트. 금리 급등과 VIX 상승은 모든 국내 판단을 한 단계 보수적으로 낮추는 안전판입니다.</div>
+        <div class="rule"><b>② 미국 지수 · 주도주</b> — S&amp;P500, 나스닥, SOX(반도체지수), 빅테크 · AI 주도주의 sell sign 여부. 미국 주도주의 이상은 국내 반도체 주도주의 선행 지표입니다.</div>
+        <div class="rule"><b>③ 아시아 증시</b> — 닛케이 · 대만 가권과의 동조화(coupling). 디커플링이면 국내 고유 요인(수급 · 정책)을 점검합니다.</div>
+        <div class="rule"><b>④ 국내 지수</b> — KOSPI · KOSDAQ 등락, 거래대금, sell sign · 20일선. 지수에 sell sign이 없어야 추세 보유의 전제가 성립합니다.</div>
+        <div class="rule"><b>⑤ 국내 주도주</b> — 삼성전자 · SK하이닉스 · AI H/W의 신고가 경신과 확산. 시장의 "질"은 지수가 아니라 주도주가 말해줍니다.</div>
+        <div class="rule"><b>⑥ 시장 내부</b> — utility 등 순환매, 부진 종목군의 추세. 주도주가 쉬는데 순환매만 도는 상승은 질 낮은 상승입니다.</div>
+        <div class="rule"><b>⑦ 결론 · 전략</b> — 신호를 종합해 포지션 강도를 정합니다: 추세 유지 → 슬림화 → 초슬림화 → 비중 축소.</div>
+      </div>
+      <div class="card guide mt">
+        <h3>자동 판정 규칙</h3>
+        <div class="rule hot"><b>비중 축소</b> — 지수 sell sign 발생, 또는 주도주 훼손 + 매크로/미국 위험. sell sign 종목부터 현금화하고 시장 이탈을 준비합니다.</div>
+        <div class="rule hot"><b>초슬림화</b> — 주도주가 쉬거나 약해지는데 순환매 과열. 고가를 경신하는 극소수 주도주만 남깁니다.</div>
+        <div class="rule"><b>슬림화</b> — 지수는 오르지만 주도주 확산이 제한적이거나 부진 종목군 약세. 반등을 이용해 주변부를 정리하고 주도주로 압축합니다.</div>
+        <div class="rule"><b>추세 유지 · 압축 보유</b> — 지수 이상 없음 + 주도주 신고가 + 확산. 주도주 중심 보유를 유지하고, 신규는 눌림에서만 접근합니다.</div>
+        <div class="rule"><b>관망 · 현금 우위</b> — 신호가 엇갈리거나 이벤트 대기 구간. 결과 확인 전 포지션 확대를 자제합니다.</div>
+      </div>
+      <div class="card guide mt">
+        <h3>용어</h3>
+        <p><b style="color:var(--cyan)">Sell sign</b> — 지수 · 종목의 추세 이탈 신호. 발생 시 보유 근거가 사라진 것으로 간주합니다.</p>
+        <p><b style="color:var(--cyan)">슬림화 / 초슬림화</b> — 보유 종목 수를 줄여 고가 경신 주도주로 압축하는 과정. 시장 내부가 약해질수록 더 좁힙니다.</p>
+        <p><b style="color:var(--cyan)">순환매</b> — 주도주가 쉬는 동안 utility 등 비주도주가 도는 것. 과열되면 주도 추세 약화의 방증일 수 있습니다.</p>
+        <p><b style="color:var(--cyan)">Offset 구간</b> — 하락을 만회하며 균형을 맞추는 되돌림 구간. 되돌림의 질(주도주 동반 여부)을 확인합니다.</p>
+        <p><b style="color:var(--cyan)">Coupling</b> — 아시아 증시와의 동조화. 디커플링은 국내 고유 요인 점검 신호입니다.</p>
+      </div>
+    </section>
+
+  </div>
+</main>
+<div id="lightbox"><img id="lightboxImg"></div>
+
+<script>
+/* ═════════ 상태 ═════════ */
+const KEY='marketlog.entries.v1';
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||[]}catch(e){return[]}};
+const save=(a)=>localStorage.setItem(KEY,JSON.stringify(a));
+let entries=load();
+let form={event:null,macro:null,usLeaders:null,asia:null,sellSign:null,leaders:null,spread:null,rotation:null,laggards:null};
+let shots=[]; let detailDate=null;
+
+const $=(s)=>document.querySelector(s);
+const $$=(s)=>document.querySelectorAll(s);
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=(s)=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const num=(v)=>{const n=parseFloat(v);return isNaN(n)?null:n};
+
+const SEG_LABEL={
+ event:{none:'없음',fomc:'FOMC',cpi:'CPI·물가',jobs:'고용',earnings:'빅테크 실적',etc:'기타'},
+ macro:{calm:'안정',watch:'경계',risk:'위험'},
+ usLeaders:{strong:'강세·신고가',hold:'추세 유지',mixed:'혼조·일부 이탈',weak:'약세·sell sign'},
+ asia:{up:'동반 강세',mixed:'혼조·디커플링',down:'동반 약세'},
+ sellSign:{none:'이상 없음',watch:'경계',fired:'Sell sign 발생'},
+ leaders:{high:'신고가 경신',up:'상승',flat:'보합·쉬어감',weak:'약세·훼손'},
+ spread:{wide:'확산 중',narrow:'소수 압축',none:'확산 없음'},
+ rotation:{none:'없음',some:'일부 순환매',hot:'순환매 과열'},
+ laggards:{hold:'추세 유지',soft:'약세',break:'추세 이탈'}
+};
+const SEG_TONE={
+ event:{none:'good'},macro:{calm:'good',watch:'warn',risk:'bad'},
+ usLeaders:{strong:'good',hold:'good',mixed:'warn',weak:'bad'},
+ asia:{up:'good',mixed:'warn',down:'bad'},
+ sellSign:{none:'good',watch:'warn',fired:'bad'},
+ leaders:{high:'good',up:'good',flat:'warn',weak:'bad'},
+ spread:{wide:'good',narrow:'warn',none:'bad'},
+ rotation:{none:'good',some:'warn',hot:'bad'},
+ laggards:{hold:'good',soft:'warn',break:'bad'}
+};
+const segLabel=(k,v)=>v?(SEG_LABEL[k][v]||v):'-';
+const segTone=(k,v)=>v?(SEG_TONE[k]?.[v]||'warn'):'dim';
+
+/* ═════════ 자동 판정 엔진 v2 ═════════ */
+function judge(f){
+  const r={verdict:'',tag:'',risk:0,notes:[],strategy:'',checklist:[],tone:'good'};
+  const chg=num(f.kospiChg);
+  const idxDown=chg!=null&&chg<-0.05;
+  const usRisk=f.macro==='risk'||f.usLeaders==='weak';
+  const vix=num(f.vix);
+
+  /* 위험 점수 */
+  let risk=20;
+  if(f.macro==='watch')risk+=5; if(f.macro==='risk')risk+=15;
+  if(f.usLeaders==='mixed')risk+=6; if(f.usLeaders==='weak')risk+=14;
+  if(vix!=null&&vix>=20)risk+=8; if(vix!=null&&vix>=28)risk+=8;
+  if(f.asia==='down')risk+=5;
+  if(f.sellSign==='watch')risk+=13; if(f.sellSign==='fired')risk+=35;
+  if(f.leaders==='flat')risk+=9; if(f.leaders==='weak')risk+=22;
+  if(f.spread==='narrow')risk+=7; if(f.spread==='none')risk+=13;
+  if(f.rotation==='some')risk+=4; if(f.rotation==='hot')risk+=13;
+  if(f.laggards==='soft')risk+=6; if(f.laggards==='break')risk+=11;
+  if(f.leaders==='high')risk-=12; if(f.spread==='wide')risk-=8;
+  if(f.macro==='calm')risk-=5; if(f.sellSign==='none')risk-=5;
+  if(f.usLeaders==='strong')risk-=5;
+  r.risk=Math.max(2,Math.min(98,risk));
+
+  /* 주도주 온도 / 매크로 스트레스 */
+  r.leaderScore=(()=>{let s=50;
+    if(f.leaders==='high')s+=30; if(f.leaders==='up')s+=15; if(f.leaders==='flat')s-=10; if(f.leaders==='weak')s-=30;
+    if(f.spread==='wide')s+=15; if(f.spread==='none')s-=15;
+    if(f.usLeaders==='strong')s+=5; if(f.usLeaders==='weak')s-=10;
+    return Math.max(2,Math.min(98,s))})();
+  r.macroScore=(()=>{let s=25;
+    if(f.macro==='watch')s+=20; if(f.macro==='risk')s+=45;
+    if(f.usLeaders==='weak')s+=10; if(vix!=null&&vix>=20)s+=15;
+    if(f.event&&f.event!=='none')s+=10; if(f.macro==='calm')s-=10;
+    return Math.max(2,Math.min(98,s))})();
+
+  /* 판정 (우선순위) */
+  if(f.sellSign==='fired'){
+    r.verdict='비중 축소'; r.tag='EXIT MODE'; r.tone='bad';
+    r.notes.push({t:'지수에 sell sign이 발생했습니다. 추세 보유의 전제가 무너진 구간입니다.',w:1});
+    r.strategy='보유 종목별 sell sign을 점검해 이탈한 종목부터 현금화합니다. 반등이 나와도 비중 축소의 기회로 사용하고, 신규 매수는 하지 않습니다.';
+    r.checklist.push('보유 종목별 sell sign 여부 점검','반등 시 축소할 종목 우선순위 정하기');
+  }else if(f.leaders==='weak'&&usRisk){
+    r.verdict='비중 축소'; r.tag='RISK OFF'; r.tone='bad';
+    r.notes.push({t:'국내 주도주 훼손에 미국 · 매크로 위험까지 겹쳤습니다. 방어가 우선입니다.',w:1});
+    r.strategy='주도주 추세 훼손 + 상단(미국·매크로) 위험의 조합은 가장 방어적으로 대응합니다. 현금 비중을 늘리고, 주도주 복귀 신호가 나올 때까지 기다립니다.';
+    r.checklist.push('미 금리 · VIX 안정 여부','국내 주도주 추세 복귀 여부');
+  }else if((f.leaders==='weak'||f.leaders==='flat')&&f.rotation==='hot'){
+    r.verdict='초슬림화'; r.tag='ULTRA SLIM'; r.tone='bad';
+    r.notes.push({t:'주도주가 쉬는데 순환매가 과열 — 질 낮은 상승입니다. 고가를 경신하는 극소수만 남깁니다.',w:1});
+    if(f.laggards!=='hold')r.notes.push({t:'부진 종목군마저 약세라면 시장 내부 온도는 지수보다 훨씬 차갑습니다.',w:1});
+    r.strategy='순환매를 따라가지 않습니다. 고가를 경신 중인 극소수 주도주만 남기고 나머지는 반등을 이용해 정리합니다. 시장이 다시 주도주 중심으로 정렬될 때까지 종목 수를 최소로 유지합니다.';
+    r.checklist.push('순환매(utility 등) 지속 여부','주도주 고가 재경신 여부');
+  }else if(f.leaders==='weak'){
+    r.verdict='슬림화 · 경계'; r.tag='SLIM & WATCH'; r.tone='warn';
+    r.notes.push({t:'주도주 약세는 시장의 질 악화 신호입니다. 반등 시 종목 수를 줄입니다.',w:1});
+    r.strategy='주도주 추세가 회복되는지 확인될 때까지 신규 매수를 멈추고, 반등이 나오면 주변부부터 정리해 종목 수를 줄입니다.';
+    r.checklist.push('주도주(삼전 · 하이닉스) 추세 복귀 여부');
+  }else if((f.leaders==='high'||f.leaders==='up')&&(f.spread==='narrow'||f.spread==='none'||f.laggards==='soft'||f.laggards==='break')){
+    r.verdict='슬림화'; r.tag='SLIM MODE'; r.tone='warn';
+    if(f.spread!=='wide')r.notes.push({t:'주도주는 살아있지만 확산이 제한적입니다. 고가 경신 종목으로 압축합니다.',w:1});
+    if(f.laggards==='soft'||f.laggards==='break')r.notes.push({t:'부진 종목군의 추세 약세 — 시장 내부가 좁아지고 있습니다.',w:1});
+    r.strategy='시장이 좁아지는 구간입니다. 고가를 경신하는 주도주는 그대로 보유하되, 따라오지 못하는 주변부는 반등을 이용해 정리합니다. 신규 매수는 주도주 눌림에서만 검토합니다.';
+    r.checklist.push('주도주 확산 재개 여부','부진 종목군 추가 이탈 여부');
+  }else if(f.leaders==='high'&&f.spread==='wide'&&f.sellSign!=='watch'){
+    r.verdict='추세 유지 · 압축 보유'; r.tag='TREND HOLD'; r.tone='good';
+    r.notes.push({t:'지수 이상 없음 + 주도주 신고가 + 확산. 가장 건강한 구간입니다.',w:0});
+    r.strategy='주도주 중심의 압축 보유를 유지합니다. 고가 경신 종목은 홀드하고, 신규 진입은 추격이 아니라 주도주의 눌림 구간에서만 접근합니다.';
+    r.checklist.push('주도주 신고가 행진 지속 여부','거래대금 동반 여부');
+  }else if(idxDown&&(f.leaders==='high'||f.leaders==='up')){
+    r.verdict='압축 유지 · 관망'; r.tag='HOLD CORE'; r.tone='warn';
+    r.notes.push({t:'지수는 밀렸지만 주도주가 상대 강세입니다. 핵심 보유는 유지하되 신규는 자제합니다.',w:0});
+    r.strategy='주도주가 지수 조정을 방어하는 구간입니다. 핵심 주도주 보유를 유지하되, 조정이 주도주로 번지는지 매일 확인합니다.';
+    r.checklist.push('조정이 주도주로 확산되는지','지수 20일선 방어 여부');
+  }else if(f.leaders==='up'||f.leaders==='high'){
+    r.verdict='추세 유지'; r.tag='TREND HOLD'; r.tone='good';
+    r.notes.push({t:'주도주 추세가 살아있습니다. 주도주 중심 보유를 이어갑니다.',w:0});
+    r.strategy='주도주 중심 보유를 유지합니다. 신고가 경신과 확산이 확인되면 강세 판정으로 승격되는 구간입니다.';
+    r.checklist.push('주도주 신고가 경신 여부');
+  }else{
+    r.verdict='관망 · 현금 우위'; r.tag='WAIT & SEE'; r.tone='warn';
+    r.notes.push({t:'신호가 엇갈리는 구간입니다. 다음 신호(주도주 신고가 or sell sign)를 기다립니다.',w:0});
+    r.strategy='어느 쪽으로도 베팅하지 않습니다. 주도주의 방향이 정해질 때까지 현금 우위를 유지하고 관찰만 합니다.';
+    r.checklist.push('주도주 방향(신고가 vs 이탈) 확정 여부');
+  }
+
+  /* 보조 코멘트 · 체크리스트 */
+  if(f.sellSign==='watch'&&r.verdict!=='비중 축소'){r.notes.push({t:'지수가 경계 구간(20일선 침투 등)입니다. 이탈 확정 시 즉시 대응을 준비합니다.',w:1});r.checklist.push('지수 20일선 회복/이탈 확인');}
+  if(f.macro==='risk'){r.notes.push({t:'매크로 위험(금리 급등 · VIX 상승)이 켜져 있습니다. 판단을 한 단계 보수적으로 낮춥니다.',w:1});r.checklist.push('미 10Y · VIX 안정 여부');}
+  if(f.event&&f.event!=='none'){r.notes.push({t:SEG_LABEL.event[f.event]+' 이벤트 대기 중 — 결과 확인 전 포지션 확대는 자제합니다.',w:0});r.checklist.push(SEG_LABEL.event[f.event]+' 결과 확인');}
+  if(f.usLeaders==='weak'){r.notes.push({t:'미국 주도주에 sell sign — 국내 반도체 주도주의 선행 경고일 수 있습니다.',w:1});r.checklist.push('국내 반도체가 미국 약세를 따라가는지');}
+  if(f.usLeaders==='mixed')r.notes.push({t:'미국 주도주가 혼조입니다. 국내 주도주와의 온도차를 관찰합니다.',w:0});
+  if(f.asia==='mixed')r.notes.push({t:'아시아와 디커플링 — 국내 고유 요인(수급 · 정책)을 점검합니다.',w:0});
+  if(f.asia==='down')r.notes.push({t:'아시아 동반 약세 — 지역 전체의 위험 회피 흐름인지 확인합니다.',w:1});
+  if(f.rotation==='some'&&r.tone==='good')r.notes.push({t:'일부 순환매가 관찰됩니다. 주도주 이탈로 번지는지 추적합니다.',w:0});
+  r.checklist=[...new Set(r.checklist)];
+  return r;
+}
+
+/* ═════════ 도넛 · 스파크라인 ═════════ */
+let gid=0;
+function donutSVG(pct,size,invert){
+  const s=size||130,r=(s/2)-9,c=2*Math.PI*r,off=c*(1-pct/100);
+  const hot=pct>=65,warm=pct>=40;
+  const col=invert?(pct>=60?'url(#gCoolX)':pct>=40?'url(#gWarmX)':'url(#gHotX)')
+                  :(hot?'url(#gHotX)':warm?'url(#gWarmX)':'url(#gCoolX)');
+  return `<svg width="${s}" height="${s}" style="transform:rotate(-90deg)">
+    <defs>
+      <linearGradient id="gCoolX"><stop offset="0" stop-color="#2ee6d6"/><stop offset="1" stop-color="#9b5cff"/></linearGradient>
+      <linearGradient id="gWarmX"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ff8a3d"/></linearGradient>
+      <linearGradient id="gHotX"><stop offset="0" stop-color="#ff8a3d"/><stop offset="1" stop-color="#ff3d8b"/></linearGradient>
+    </defs>
+    <circle cx="${s/2}" cy="${s/2}" r="${r}" fill="none" stroke="#2a1247" stroke-width="10"/>
+    <circle cx="${s/2}" cy="${s/2}" r="${r}" fill="none" stroke="${col}" stroke-width="10"
+      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${off}"/>
+  </svg>`;
+}
+function spark(vals){
+  const v=vals.filter(x=>x!=null);
+  if(v.length<2)return '<div class="spark"></div>';
+  const w=150,h=30,min=Math.min(...v),max=Math.max(...v),rng=(max-min)||1;
+  const pts=v.map((x,i)=>`${(i/(v.length-1))*w},${h-3-((x-min)/rng)*(h-6)}`).join(' ');
+  const id='sp'+(gid++);
+  const rising=v[v.length-1]>=v[0];
+  return `<svg class="spark" width="100%" height="30" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+    <defs><linearGradient id="${id}"><stop offset="0" stop-color="${rising?'#2ee6d6':'#ff8a3d'}"/><stop offset="1" stop-color="${rising?'#9b5cff':'#ff3d8b'}"/></linearGradient></defs>
+    <polyline points="${pts}" fill="none" stroke="url(#${id})" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+/* ═════════ 대시보드 ═════════ */
+const fmt=(v,d)=>v==null?'-':Number(v).toLocaleString(undefined,{maximumFractionDigits:d??2});
+const chgHTML=(v)=>{
+  if(v==null)return '<span class="c fl">-</span>';
+  const cls=v>0.001?'up':v<-0.001?'dn':'fl';
+  const arrow=v>0.001?'▲':v<-0.001?'▼':'—';
+  return `<span class="c ${cls}">${arrow} ${Math.abs(v).toFixed(2)}%</span>`;
+};
+function hist(key,n){ // 과거→최신 순 수치 배열
+  return entries.slice(0,n||14).map(e=>num(e[key])).reverse();
+}
+function tileNum(label,key,unit,digits){
+  const last=entries[0];
+  const v=last?num(last[key]):null;
+  return `<div class="tile"><div class="k">${label}</div>
+    <div class="v">${fmt(v,digits)}<small> ${unit||''}</small></div>${spark(hist(key))}</div>`;
+}
+function tileChg(label,key){
+  const last=entries[0];
+  const v=last?num(last[key]):null;
+  return `<div class="tile"><div class="k">${label}</div>
+    <div class="v">${v==null?'-':(v>0?'+':'')+v.toFixed(2)+'<small> %</small>'}</div>
+    ${chgHTML(v)}${spark(hist(key))}</div>`;
+}
+function tileBadge(label,key){
+  const last=entries[0];
+  const v=last?last[key]:null;
+  return `<div class="tile"><div class="k">${label}</div>
+    <span class="badge b-${segTone(key,v)}" style="font-size:13px;margin-top:8px">${segLabel(key,v)}</span></div>`;
+}
+function renderDash(){
+  const last=entries[0];
+  const j=last?(last.judge||judge(last)):null;
+
+  /* 상단: 판정 + 게이지 3종 */
+  $('#dashTop').innerHTML=`
+    <div class="card" style="grid-column:span 1">
+      <h3>최근 판정</h3>
+      ${j?`<div style="font-size:19px;font-weight:700;margin:8px 0 2px">${esc(j.verdict)}</div>
+      <div class="eng" style="font-size:10px;color:var(--dim)">${esc(j.tag)}</div>
+      <p style="margin-top:10px;line-height:1.7;color:var(--dim);font-size:12px">${esc(j.notes[0]?.t||'')}</p>
+      <div class="eng" style="font-size:9.5px;color:var(--dim);margin-top:12px">${last.date}</div>`
+      :'<div class="hint" style="margin-top:8px">아직 기록이 없습니다.<br>"오늘 기록"에서 첫 시황을 남겨보세요.</div>'}
+    </div>
+    <div class="card donut-wrap"><div class="donut" style="width:110px;height:110px">${donutSVG(j?j.risk:0,110)}<div class="val">${j?j.risk+'%':'-'}</div></div>
+      <div class="donut-cap">RISK GAUGE</div><div class="donut-sub">시장 위험도</div></div>
+    <div class="card donut-wrap"><div class="donut" style="width:110px;height:110px">${donutSVG(j?j.leaderScore:0,110,true)}<div class="val">${j?j.leaderScore+'%':'-'}</div></div>
+      <div class="donut-cap">LEADERS</div><div class="donut-sub">주도주 온도</div></div>
+    <div class="card donut-wrap"><div class="donut" style="width:110px;height:110px">${donutSVG(j?j.macroScore:0,110)}<div class="val">${j?j.macroScore+'%':'-'}</div></div>
+      <div class="donut-cap">MACRO STRESS</div><div class="donut-sub">매크로 스트레스</div></div>`;
+
+  /* 지표 그룹 — 분석 순서 그대로 */
+  $('#dashGroups').innerHTML=`
+    <div class="group">
+      <div class="group-head"><span class="no">01</span><span class="t eng">US MACRO</span><span class="q">시장의 안전판 — 금리 · 달러 · VIX · 이벤트</span></div>
+      <div class="tiles">
+        ${tileNum('미 10Y 금리','us10y','%',3)}
+        ${tileNum('미 2Y 금리','us2y','%',3)}
+        ${tileNum('달러인덱스','dxy','',2)}
+        ${tileNum('VIX','vix','',2)}
+        ${tileBadge('대기 이벤트','event')}
+        ${tileBadge('매크로 종합','macro')}
+      </div>
+    </div>
+    <div class="group">
+      <div class="group-head"><span class="no">02</span><span class="t eng">US MARKET</span><span class="q">글로벌 추세 — 지수 · SOX · 빅테크 sell sign</span></div>
+      <div class="tiles">
+        ${tileChg('S&P500','spx')}
+        ${tileChg('NASDAQ','ndx')}
+        ${tileChg('SOX 반도체','sox')}
+        ${tileBadge('미국 주도주','usLeaders')}
+      </div>
+    </div>
+    <div class="group">
+      <div class="group-head"><span class="no">03</span><span class="t eng">ASIA</span><span class="q">동조화 확인 — 닛케이 · 대만 가권</span></div>
+      <div class="tiles">
+        ${tileChg('닛케이','nikkei')}
+        ${tileChg('대만 가권','taiex')}
+        ${tileBadge('Coupling','asia')}
+      </div>
+    </div>
+    <div class="group">
+      <div class="group-head"><span class="no">04</span><span class="t eng">KOREA INDEX</span><span class="q">추세 신호 — KOSPI · KOSDAQ · sell sign</span></div>
+      <div class="tiles">
+        ${tileNum('KOSPI','kospi','',2)}
+        ${tileChg('KOSPI 등락','kospiChg')}
+        ${tileChg('KOSDAQ 등락','kosdaqChg')}
+        ${tileNum('거래대금','volume','조원',1)}
+        ${tileBadge('지수 신호','sellSign')}
+      </div>
+    </div>
+    <div class="group">
+      <div class="group-head"><span class="no">05</span><span class="t eng">KOREA LEADERS</span><span class="q">시장의 질 — 반도체 신고가 · 확산</span></div>
+      <div class="tiles">
+        ${tileChg('삼성전자','sec')}
+        ${tileChg('SK하이닉스','hynix')}
+        ${tileBadge('주도주 상태','leaders')}
+        ${tileBadge('상승 확산','spread')}
+      </div>
+    </div>
+    <div class="group">
+      <div class="group-head"><span class="no">06</span><span class="t eng">MARKET INTERNALS</span><span class="q">시장 내부 — 순환매 · 부진 종목군</span></div>
+      <div class="tiles">
+        ${tileBadge('순환매 (utility)','rotation')}
+        ${tileBadge('부진 종목군','laggards')}
+      </div>
+    </div>`;
+
+  $('#dashRecent').innerHTML=entries.slice(0,5).map(e=>`
+    <div class="entry-card" style="padding:12px 6px;border-bottom:1px solid rgba(255,255,255,.04)" onclick="openDetail('${e.date}')">
+      <div class="mini-donut">${donutSVG(e.judge?.risk??0,56)}<div class="val">${e.judge?.risk??'-'}%</div></div>
+      <div class="entry-meta"><div class="d">${e.date}</div><div class="v">${esc(e.judge?.verdict||'-')}</div></div>
+      <span class="chip ${chipClass(e.judge?.tone)}">${esc(e.judge?.tag||'')}</span>
+    </div>`).join('')||'<div class="empty">기록 없음</div>';
+}
+
+/* ═════════ 네비게이션 ═════════ */
+const CRUMB={dash:'HOME',write:'오늘 기록',list:'일지 목록',detail:'상세',guide:'분석 가이드'};
+function show(view){
+  $$('.view').forEach(v=>v.classList.remove('active'));
+  $('#view-'+view).classList.add('active');
+  $$('.nav-btn[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  $('#crumbCur').textContent=CRUMB[view]||'HOME';
+  if(view==='dash')renderDash();
+  if(view==='list')renderList();
+  window.scrollTo(0,0);
+}
+$$('.nav-btn[data-view]').forEach(b=>b.onclick=()=>show(b.dataset.view));
+
+/* ═════════ 세그먼트 ═════════ */
+$$('.seg').forEach(seg=>{
+  const key=seg.dataset.key;
+  seg.querySelectorAll('button').forEach(btn=>{
+    btn.onclick=()=>{
+      form[key]=btn.dataset.val;
+      seg.querySelectorAll('button').forEach(b=>b.className='');
+      btn.className='on-'+({good:'good',warn:'warn',bad:'bad'}[btn.dataset.tone]||'cool');
+    };
+  });
+});
+function setSeg(key,val){
+  form[key]=val;
+  const seg=document.querySelector(`.seg[data-key="${key}"]`); if(!seg)return;
+  seg.querySelectorAll('button').forEach(b=>{
+    b.className=(b.dataset.val===val)?('on-'+({good:'good',warn:'warn',bad:'bad'}[b.dataset.tone]||'cool')):'';
+  });
+}
+
+/* ═════════ 스크린샷 ═════════ */
+const drop=$('#dropZone'),shotInput=$('#shotInput');
+drop.onclick=()=>shotInput.click();
+drop.ondragover=e=>{e.preventDefault();drop.classList.add('over')};
+drop.ondragleave=()=>drop.classList.remove('over');
+drop.ondrop=e=>{e.preventDefault();drop.classList.remove('over');addShots(e.dataTransfer.files)};
+shotInput.onchange=()=>addShots(shotInput.files);
+function addShots(files){
+  [...files].forEach(f=>{
+    if(!f.type.startsWith('image/'))return;
+    const img=new Image(),url=URL.createObjectURL(f);
+    img.onload=()=>{
+      const max=1280,sc=Math.min(1,max/img.width);
+      const cv=document.createElement('canvas');
+      cv.width=img.width*sc;cv.height=img.height*sc;
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      shots.push(cv.toDataURL('image/jpeg',.8));
+      URL.revokeObjectURL(url);renderShots();
+    };
+    img.src=url;
+  });
+}
+function renderShots(){
+  $('#shotPreview').innerHTML=shots.map((s,i)=>
+    `<div style="position:relative"><img src="${s}" data-i="${i}">
+     <button data-del="${i}" style="position:absolute;top:-6px;right:-6px;background:var(--magenta);border:0;color:#fff;width:20px;height:20px;border-radius:99px;cursor:pointer;font-size:11px;line-height:1">✕</button></div>`).join('');
+  $$('#shotPreview img').forEach(im=>im.onclick=()=>light(shots[+im.dataset.i]));
+  $$('#shotPreview [data-del]').forEach(b=>b.onclick=(e)=>{e.stopPropagation();shots.splice(+b.dataset.del,1);renderShots()});
+}
+function light(src){$('#lightboxImg').src=src;$('#lightbox').style.display='flex'}
+$('#lightbox').onclick=()=>$('#lightbox').style.display='none';
+
+/* ═════════ 수집 · 판정 · 저장 ═════════ */
+const NUM_FIELDS=[['fUs10y','us10y'],['fUs2y','us2y'],['fDxy','dxy'],['fVix','vix'],['fSpx','spx'],['fNdx','ndx'],['fSox','sox'],
+ ['fNikkei','nikkei'],['fTaiex','taiex'],['fKospi','kospi'],['fKospiChg','kospiChg'],['fKosdaqChg','kosdaqChg'],['fVolume','volume'],
+ ['fSec','sec'],['fHynix','hynix']];
+const MEMO_FIELDS=[['mMacro','mMacro'],['mUs','mUs'],['mAsia','mAsia'],['mIndex','mIndex'],['mLeaders','mLeaders'],['mInternal','mInternal'],['mConclusion','mConclusion']];
+function collect(){
+  const d={date:$('#fDate').value||today(),...form,shots:[...shots]};
+  NUM_FIELDS.forEach(([id,k])=>d[k]=$('#'+id).value);
+  MEMO_FIELDS.forEach(([id,k])=>d[k]=$('#'+id).value);
+  return d;
+}
+function verdictHTML(j){
+  return `<div class="verdict ${j.tone==='bad'?'v-bad':''}">
+    <div class="v-tag eng">${esc(j.tag)} · RISK ${j.risk}%</div>
+    <div class="v-title">${esc(j.verdict)}</div>
+    <div style="display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap">
+      <div class="donut" style="width:96px;height:96px;flex-shrink:0">${donutSVG(j.risk,96)}<div class="val" style="font-size:18px">${j.risk}%</div></div>
+      <ul style="flex:1;min-width:240px">${j.notes.map(n=>`<li class="${n.w?'warn':''}">${esc(n.t)}</li>`).join('')}</ul>
+    </div>
+    <div class="strategy"><div class="st">투자 전략</div><p>${esc(j.strategy)}</p></div>
+    ${j.checklist?.length?`<div class="checklist"><div class="st">내일 확인할 것</div><ul>${j.checklist.map(c=>`<li>${esc(c)}</li>`).join('')}</ul></div>`:''}
+  </div>`;
+}
+$('#btnJudge').onclick=()=>{
+  const j=judge(collect());
+  $('#judgeResult').innerHTML=verdictHTML(j);
+  $('#judgeResult').scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+$('#btnSave').onclick=()=>{
+  const d=collect();
+  if(!form.sellSign||!form.leaders){alert('최소한 ④ 지수 신호와 ⑤ 주도주 상태는 선택해 주세요.');return;}
+  d.judge=judge(d);
+  const i=entries.findIndex(e=>e.date===d.date);
+  if(i>=0){if(!confirm(d.date+' 기록이 이미 있습니다. 덮어쓸까요?'))return; entries[i]=d;}
+  else entries.push(d);
+  entries.sort((a,b)=>b.date.localeCompare(a.date));
+  save(entries);
+  alert('저장되었습니다: '+d.date);
+  show('dash');
+};
+$('#btnReset').onclick=()=>{if(confirm('입력을 초기화할까요?'))resetForm()};
+function resetForm(){
+  NUM_FIELDS.forEach(([id])=>$('#'+id).value='');
+  MEMO_FIELDS.forEach(([id])=>$('#'+id).value='');
+  $('#fDate').value=today();
+  Object.keys(form).forEach(k=>form[k]=null);
+  $$('.seg button').forEach(b=>b.className='');
+  shots=[];renderShots();$('#judgeResult').innerHTML='';
+}
+
+/* ═════════ 목록 ═════════ */
+function chipClass(t){return t==='good'?'c-good':t==='bad'?'c-bad':'c-warn'}
+function renderList(filter){
+  const q=(filter||'').toLowerCase();
+  const list=entries.filter(e=>!q||e.date.includes(q)||(e.judge?.verdict||'').includes(q)||(e.mConclusion||'').toLowerCase().includes(q));
+  $('#entryList').innerHTML=list.length?list.map(e=>`
+    <div class="card entry-card" onclick="openDetail('${e.date}')">
+      <div class="mini-donut">${donutSVG(e.judge?.risk??0,56)}<div class="val">${e.judge?.risk??'-'}%</div></div>
+      <div class="entry-meta">
+        <div class="d">${e.date}</div>
+        <div class="v">${esc(e.judge?.verdict||'-')}</div>
+        <div class="s">${esc(e.mConclusion||e.mIndex||'')}</div>
+      </div>
+      <span class="chip ${chipClass(e.judge?.tone)}">${esc(e.judge?.tag||'')}</span>
+    </div>`).join('')
+  :'<div class="empty">아직 일지가 없습니다.<br>"오늘 기록"에서 첫 시황을 남겨보세요.</div>';
+}
+$('#searchBox').oninput=e=>{show('list');renderList(e.target.value)};
+
+/* ═════════ 상세 ═════════ */
+window.openDetail=(date)=>{
+  detailDate=date;
+  const e=entries.find(x=>x.date===date); if(!e)return;
+  const kv=(pairs)=>`<div class="kv">${pairs.filter(p=>p[1]!==''&&p[1]!=null).map(p=>`<span>${p[0]} <b>${esc(p[1])}</b></span>`).join('')}</div>`;
+  const sec=(t,body)=>`<div class="detail-sec"><div class="t">${t}</div><div class="b">${body}</div></div>`;
+  const sl=(k)=>segLabel(k,e[k]);
+  $('#detailBody').innerHTML=`
+    <div class="card">
+      <h3>${e.date}</h3>
+      ${verdictHTML(e.judge||judge(e))}
+      ${sec('01 · 미국 매크로',esc(e.mMacro||'-')+kv([['10Y',e.us10y],['2Y',e.us2y],['DXY',e.dxy],['VIX',e.vix],['이벤트',sl('event')],['종합',sl('macro')]]))}
+      ${sec('02 · 미국 지수 · 주도주',esc(e.mUs||'-')+kv([['S&P %',e.spx],['NASDAQ %',e.ndx],['SOX %',e.sox],['미 주도주',sl('usLeaders')]]))}
+      ${sec('03 · 아시아',esc(e.mAsia||'-')+kv([['닛케이 %',e.nikkei],['가권 %',e.taiex],['동조화',sl('asia')]]))}
+      ${sec('04 · 국내 지수',esc(e.mIndex||'-')+kv([['KOSPI',e.kospi],['KOSPI %',e.kospiChg],['KOSDAQ %',e.kosdaqChg],['거래대금',e.volume?e.volume+'조':null],['신호',sl('sellSign')]]))}
+      ${sec('05 · 국내 주도주',esc(e.mLeaders||'-')+kv([['삼성전자 %',e.sec],['하이닉스 %',e.hynix],['상태',sl('leaders')],['확산',sl('spread')]]))}
+      ${sec('06 · 시장 내부',esc(e.mInternal||'-')+kv([['순환매',sl('rotation')],['부진군',sl('laggards')]]))}
+      ${sec('07 · 내 결론',esc(e.mConclusion||'-'))}
+      ${e.shots?.length?`<div class="detail-sec"><div class="t">SCREENSHOTS</div><div class="shots">${e.shots.map((s,i)=>`<img src="${s}">`).join('')}</div></div>`:''}
+    </div>`;
+  $$('#detailBody .shots img').forEach(img=>img.onclick=()=>light(img.src));
+  show('detail');
+};
+$('#btnBack').onclick=()=>show('list');
+$('#btnDel').onclick=()=>{
+  if(!confirm(detailDate+' 기록을 삭제할까요?'))return;
+  entries=entries.filter(e=>e.date!==detailDate);save(entries);show('list');
+};
+$('#btnEdit').onclick=()=>{
+  const e=entries.find(x=>x.date===detailDate); if(!e)return;
+  resetForm();
+  $('#fDate').value=e.date;
+  NUM_FIELDS.forEach(([id,k])=>$('#'+id).value=e[k]||'');
+  MEMO_FIELDS.forEach(([id,k])=>$('#'+id).value=e[k]||'');
+  Object.keys(form).forEach(k=>{if(e[k])setSeg(k,e[k])});
+  shots=[...(e.shots||[])];renderShots();
+  show('write');
+};
+
+/* ═════════ Markdown ═════════ */
+function toMarkdown(e){
+  const sl=(k)=>segLabel(k,e[k]);
+  const j=e.judge||judge(e);
+  return `# ${e.date} 시황 일지
+
+> **판정: ${j.verdict}** (${j.tag} · 위험도 ${j.risk}%)
+${j.notes.map(n=>`> - ${n.t}`).join('\n')}
+>
+> **전략**: ${j.strategy}
+
+## 01. 미국 매크로
+- 10Y: ${e.us10y||'-'}% / 2Y: ${e.us2y||'-'}% / DXY: ${e.dxy||'-'} / VIX: ${e.vix||'-'}
+- 이벤트: ${sl('event')} / 종합: ${sl('macro')}
+
+${e.mMacro||''}
+
+## 02. 미국 지수 · 주도주
+- S&P500: ${e.spx||'-'}% / NASDAQ: ${e.ndx||'-'}% / SOX: ${e.sox||'-'}%
+- 미국 주도주: ${sl('usLeaders')}
+
+${e.mUs||''}
+
+## 03. 아시아
+- 닛케이: ${e.nikkei||'-'}% / 대만 가권: ${e.taiex||'-'}% / 동조화: ${sl('asia')}
+
+${e.mAsia||''}
+
+## 04. 국내 지수
+- KOSPI: ${e.kospi||'-'} (${e.kospiChg||'-'}%) / KOSDAQ: ${e.kosdaqChg||'-'}% / 거래대금: ${e.volume||'-'}조원
+- 추세 신호: ${sl('sellSign')}
+
+${e.mIndex||''}
+
+## 05. 국내 주도주
+- 삼성전자: ${e.sec||'-'}% / SK하이닉스: ${e.hynix||'-'}%
+- 상태: ${sl('leaders')} / 확산: ${sl('spread')}
+
+${e.mLeaders||''}
+
+## 06. 시장 내부
+- 순환매: ${sl('rotation')} / 부진 종목군: ${sl('laggards')}
+
+${e.mInternal||''}
+
+## 07. 결론
+${e.mConclusion||''}
+
+### 내일 확인할 것
+${(j.checklist||[]).map(c=>`- [ ] ${c}`).join('\n')}
+`;
+}
+$('#btnMd').onclick=async()=>{
+  const e=entries.find(x=>x.date===detailDate); if(!e)return;
+  try{await navigator.clipboard.writeText(toMarkdown(e));alert('Markdown이 복사되었습니다. 저장소의 logs/ 폴더에 '+e.date+'.md 로 커밋하면 GitHub에도 일지가 남습니다.');}
+  catch(err){alert('복사 실패 — MD 다운로드를 사용해 주세요.')}
+};
+$('#btnMdDl').onclick=()=>{
+  const e=entries.find(x=>x.date===detailDate); if(!e)return;
+  const b=new Blob([toMarkdown(e)],{type:'text/markdown'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=e.date+'.md';a.click();
+};
+
+/* ═════════ 백업 / 복원 ═════════ */
+$('#btnExport').onclick=()=>{
+  const b=new Blob([JSON.stringify(entries,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='marketlog-backup-'+today()+'.json';a.click();
+};
+$('#btnImport').onclick=()=>$('#importFile').click();
+$('#importFile').onchange=e=>{
+  const f=e.target.files[0]; if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{
+    const data=JSON.parse(rd.result);
+    if(!Array.isArray(data))throw 0;
+    if(!confirm(data.length+'건을 불러옵니다. 같은 날짜는 덮어씁니다. 진행할까요?'))return;
+    data.forEach(d=>{const i=entries.findIndex(x=>x.date===d.date);if(i>=0)entries[i]=d;else entries.push(d)});
+    entries.sort((a,b)=>b.date.localeCompare(a.date));save(entries);renderDash();alert('복원 완료');
+  }catch(err){alert('JSON 파일을 읽을 수 없습니다.')}};
+  rd.readAsText(f);
+};
+
+/* ═════════ 초기화 ═════════ */
+$('#fDate').value=today();
+$('#hdrDate').textContent=today();
+renderDash();
+</script>
+</body>
+</html>
